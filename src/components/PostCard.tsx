@@ -61,6 +61,19 @@ export function PostCard({ post, currentUser, onDelete }: { post: PostResponse, 
     setDeleting(true);
     try {
       await postApi.delete(post.id);
+      if (post.imageUrl) {
+        try {
+          await fetch("/api/cloudinary/delete", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ imageUrl: post.imageUrl }),
+          });
+        } catch (cloudinaryError) {
+          console.error("Failed to delete Cloudinary image", cloudinaryError);
+        }
+      }
       if (onDelete) onDelete(post.id);
     } catch (err) {
       console.error("Failed to delete post", err);
